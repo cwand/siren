@@ -7,7 +7,7 @@ import argparse
 def main(sys_args: list[str]):
 
     # Get version number from pyproject.toml
-    __version__ = importlib.metadata.version("tictac")
+    __version__ = importlib.metadata.version("siren")
     start_time = time.time_ns()
 
     print("Starting SIREN", __version__)
