@@ -18,6 +18,7 @@ def main(sys_args: list[str]):
     print(f'Current working directory: {os.getcwd()}')
     print()
 
+    # Parse system arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", metavar="IMG_DIR", required=True,
                         help="Path to dynamic dicom images.")
@@ -30,6 +31,7 @@ def main(sys_args: list[str]):
 
     args = parser.parse_args(sys_args)
 
+    # Load data and extract TACs
     print(f'Image data: {args.i}')
     print('ROI data:')
     print(f' Aorta: {args.aorta}')
@@ -49,6 +51,7 @@ def main(sys_args: list[str]):
     )
     print()
 
+    # Start analysis
     print('Finding aorta peak...')
     t_peak, a_peak = siren.find_peak(tac, args.aorta)
     print(f'Input peak time: {t_peak:.1f} seconds')

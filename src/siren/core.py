@@ -13,17 +13,11 @@ from tqdm import tqdm
 
 
 def get_acq_datetime(dicom_path: str) -> datetime:
-    """Get an image acquisition datetime from its dicom header.
-    Dicom images store the acquisition date and time in tags in the images
-    dicom header. This function reads the relevant tags and turns it into a
-    datetime object.
-
-    Arguments:
-    dicom_path  --  The path to the dicom file.
-
-    Return value:
-    A datetime object representing the date and time of the acquisition.
-    """
+    '''
+    Get the acquisition time and date form the dicom metadata of an image
+    :param dicom_path: The path to the dicom file
+    :return: A datetime object reflecting the acquisition time
+    '''
 
     # Read the dicom image into Simple ITK
     img = sitk.ReadImage(dicom_path)
@@ -43,6 +37,16 @@ def get_tac_from_paths(series_path: str,
                        roi_paths: list[str],
                        progress: bool = True) \
         -> dict[str, npt.NDArray[np.float64]]:
+    '''
+    Extract TACs from an image series and a list of roi files.
+    :param series_path: The path to the dynamic image data (dicom).
+    :param roi_paths: A list of all roi files to extract
+    :param progress: Whether or not to show a progress bar.
+    :return: Returns a dictionary object. The keys will be the filenames
+    passed to this function, and the respective values till be the TAC for that
+    ROI in a numpy array. Furthermore the key 'tacq' will contain the time data
+    (in seconds).
+    '''
 
     # Prepare series reader
     reader = sitk.ImageSeriesReader()
@@ -99,6 +103,9 @@ def make_renogram(tac: dict[str, npt.NDArray[np.float64]],
                   split_function_right_kidney: float,
                   retention20_left: float,
                   retention20_right: float):
+    '''
+    Draw a renogram on the screen
+    '''
 
     fig = plt.figure(figsize=(10, 8))
     gs = GridSpec(2, 1, height_ratios=[3, 1])
