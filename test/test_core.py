@@ -33,7 +33,7 @@ class TestGetTAC(unittest.TestCase):
         tacq_exp = np.array([0, 3.0, 6.3, 9.5, 12.8, 16.0, 19.3, 22.5, 25.8])
         self.assertFalse(np.any(dyn['tacq'] - tacq_exp))
 
-        r1 = dyn['Segmentation.nrrd']
+        r1 = dyn[os.path.join('test', '8_3V_seg', 'Segmentation.nrrd')]
         r1_exp = np.array([0.0, 188.081845, 301254.45, 2944728.5,
                            2954430.5, 312867.45, 3303.139, 183.26686, 0.0])
         test_arr = np.nan_to_num(abs(r1 - r1_exp) / r1_exp)
