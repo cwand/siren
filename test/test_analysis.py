@@ -138,4 +138,4 @@ class TestVolume(unittest.TestCase):
     def test_volume(self):
         v = siren.get_volume(
             os.path.join('test', '8_3V_seg', 'Segmentation.nrrd'))
-        self.assertAlmostEquals(v, 29.1784, places=4)
+        self.assertAlmostEqual(v, 29.1784, places=4)
