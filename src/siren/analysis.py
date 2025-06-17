@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.typing as npt
 import scipy
+import SimpleITK as sitk
 
 
 def find_peak(tac: dict[str, npt.NDArray[np.float64]],
@@ -24,36 +25,29 @@ def find_peak(tac: dict[str, npt.NDArray[np.float64]],
     return float(t[idx]), float(a[idx])
 
 
-def find_peak_half(tac: dict[str, npt.NDArray[np.float64]],
-                   label: str,
-                   start: float = 0.0) -> float:
+def find_first_under(tac: dict[str, npt.NDArray[np.float64]],
+                     label: str,
+                     value: float,
+                     start: float = 0.0) -> float:
     '''
-    Find the time for the TAC to decay to half of the maximum value
+    Find the first time point where a label TAC is under a certain value
     :param tac: The TAC dictionary
     :param label: The label of interest
-    :param start: The max value is taken as the largest value after "start"
-    :return: Return the time point where the TAC first dives under half the
-    maximum value. If the data never goes under the half value a negative value
-    is returned.
+    :param value: The trigger value
+    :param start: Start the search from a given start time, ignoring earlier
+    times.
+    :return: The value of tac['tacq'] at the first point after start where
+    tac[label] < value. If that time is not observed in the TAC, -1 is
+    returned.
     '''
 
-    # Filter out elements before start
-    t = tac['tacq'][tac['tacq'] >= start]
-    a = tac[label][tac['tacq'] >= start]
-
-    # Find index of the largest value
-    idx = np.argmax(a)
-    # Save the maximum value
-    amax = a[idx]
-
-    # Iterate through the data and find the first element under the half value
-    while a[idx] > 0.5 * amax:
-        idx = idx + 1
-        if idx == len(a):
-            # We have iterated to the end, return an error code.
-            return -1.0
-
-    return float(t[idx])
+    a = tac[label]
+    t = tac['tacq']
+    t_true = t[np.nonzero(np.logical_and(a < value, t >= start))]
+    if t_true.size == 0:
+        return -1
+    else:
+        return np.min(t_true)
 
 
 def integrate(tac: dict[str, npt.NDArray[np.float64]],
@@ -75,3 +69,21 @@ def integrate(tac: dict[str, npt.NDArray[np.float64]],
     a = tac[label][np.logical_and(tac['tacq'] >= start, tac['tacq'] <= end)]
 
     return float(scipy.integrate.trapezoid(a, t))
+
+
+def avg(tac: dict[str, npt.NDArray[np.float64]],
+        label: str,
+        start: float) -> float:
+
+    a = tac[label][tac['tacq'] >= start]
+    return float(np.mean(a))
+
+
+def get_volume(roi_path: str) -> float:
+    roi = sitk.ReadImage(roi_path)
+    binary_mask = sitk.BinaryThreshold(roi,
+                                       lowerThreshold=1,
+                                       upperThreshold=1)
+    n_vox = sitk.GetArrayFromImage(binary_mask).sum()
+    spacing = roi.GetSpacing()
+    return float(n_vox * spacing[0] * spacing[1] * spacing[2] / 1000)
