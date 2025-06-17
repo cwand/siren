@@ -47,7 +47,7 @@ def find_first_under(tac: dict[str, npt.NDArray[np.float64]],
     if t_true.size == 0:
         return -1
     else:
-        return np.min(t_true)
+        return float(np.min(t_true))
 
 
 def integrate(tac: dict[str, npt.NDArray[np.float64]],
